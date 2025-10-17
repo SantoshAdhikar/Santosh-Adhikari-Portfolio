@@ -2,12 +2,9 @@
 
 A modern personal portfolio website showcasing my projects, skills, and contact details.
 
-![screenshot](public/og-image.png)
 
 ## 🚀 Live Demo
-[View Portfolio](https://santosh-portfolio.vercel.app)
 
----
 
 ## 🛠️ Tech Stack
 - **Frontend:** React + TypeScript + Vite  
