@@ -7,19 +7,22 @@ const items: Array<{ title: string; tech: string; desc: string; links: LinkPair 
     title: "StudentNest (Student Management System)",
     tech: "React • Spring Boot • SQL • Google Cloud",
     desc: "Student/teacher registration, course management, tuition processing, secure login, and scalable storage.",
-    links: { github: "https://github.com/SantoshAdhikar/studentnest", live: "" },
+    links: { github: "https://github.com/SantoshAdhikar/<repo>", live: "https://<vercel-url>" }
+,
   },
   {
     title: "SafeChat Backend",
     tech: "Spring Boot • H2 • FastAPI (ML) • OpenCV",
     desc: "Encryption, validation, phishing detection, and image upload scanner. /messages API ready.",
-    links: { github: "https://github.com/SantoshAdhikar/safechat-backend", live: "" },
+    links: { github: "https://github.com/SantoshAdhikar/<repo>", live: "https://<vercel-url>" }
+,
   },
   {
     title: "Android Labs (Jetpack Compose)",
     tech: "Kotlin • ViewModel • Navigation • Room",
     desc: "Image grids, state handling, error/loading UIs using Compose.",
-    links: { github: "https://github.com/SantoshAdhikar/android-labs", live: "" },
+    links: { github: "https://github.com/SantoshAdhikar/<repo>", live: "https://<vercel-url>" }
+,
   },
 ];
 

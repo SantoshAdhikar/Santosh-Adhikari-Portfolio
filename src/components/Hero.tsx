@@ -4,7 +4,7 @@ export default function Hero() {
   return (
     <motion.section
       id="home"
-      className="scroll-mt-24 min-h-[72vh] grid place-items-center bg-gray-50"
+      className="scroll-mt-24 min-h-[72vh] grid place-items-center bg-gray-50 dark:bg-neutral-950"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -13,6 +13,9 @@ export default function Hero() {
         <img
           src="/profile.jpg"
           alt="Santosh Adhikari"
+          width={128}
+          height={128}
+          decoding="async"
           className="mx-auto h-32 w-32 rounded-full object-cover border shadow-md"
         />
 
@@ -20,11 +23,11 @@ export default function Hero() {
           Portfolio
         </p>
 
-        <h1 className="mt-2 text-4xl md:text-5xl font-bold">
+        <h1 className="mt-2 text-4xl md:text-5xl font-bold dark:text-neutral-100">
           Hi, I’m <span className="text-blue-600">Santosh Adhikari</span>
         </h1>
 
-        <p className="mt-4 text-gray-700 max-w-2xl mx-auto leading-relaxed">
+        <p className="mt-4 text-gray-700 dark:text-neutral-300 max-w-2xl mx-auto leading-relaxed">
           CS student at CSULB. I build full-stack apps with React, Java Spring Boot, and SQL.
           Passionate about secure messaging, education tech, and clean UI.
         </p>
