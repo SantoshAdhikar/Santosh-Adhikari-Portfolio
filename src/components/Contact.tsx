@@ -1,24 +1,82 @@
+import { useState } from "react";
+import { motion } from "framer-motion";
+
 export default function Contact() {
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setStatus("sending");
+    const form = e.currentTarget;
+    const data = new FormData(form);
+
+    try {
+      const res = await fetch("https://formspree.io/f/xdkwbyak", {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: data,
+      });
+      if (res.ok) {
+        form.reset();
+        setStatus("sent");
+      } else {
+        setStatus("error");
+      }
+    } catch {
+      setStatus("error");
+    }
+  }
+
   return (
-    <section id="contact" className="py-16">
+    <motion.section
+      id="contact"
+      className="scroll-mt-24 py-16"
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      viewport={{ once: true }}
+    >
       <div className="mx-auto max-w-6xl px-4">
         <h2 className="text-2xl font-bold">Contact</h2>
         <p className="mt-4 text-gray-700">Best ways to reach me:</p>
         <ul className="mt-2 text-gray-700 list-disc list-inside">
-          <li>Email: <a className="underline" href="mailto:santosh@example.com">santosh@example.com</a></li>
-          <li>GitHub: <a className="underline" href="https://github.com/your-username" target="_blank" rel="noreferrer">github.com/your-username</a></li>
-          <li>LinkedIn: <a className="underline" href="https://www.linkedin.com/in/your-handle" target="_blank" rel="noreferrer">linkedin.com/in/your-handle</a></li>
+          <li>
+            Email:{" "}
+            <a className="underline" href="mailto:santoshasladhikari@gmail.com">
+              santoshasladhikari@gmail.com
+            </a>
+          </li>
+          <li>
+            GitHub:{" "}
+            <a className="underline" href="https://github.com/SantoshAdhikar" target="_blank" rel="noreferrer">
+              github.com/SantoshAdhikar
+            </a>
+          </li>
+          <li>
+            LinkedIn:{" "}
+            <a className="underline" href="https://www.linkedin.com/in/santosh-adhikari-2043-sant" target="_blank" rel="noreferrer">
+              linkedin.com/in/santosh-adhikari-2043-sant
+            </a>
+          </li>
         </ul>
 
-        {/* Optional: simple static contact form via Formspree (no backend) */}
-        {/* Replace YOUR_FORM_ID below if you want a working form */}
-        {/* <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST" className="mt-6 grid gap-3 max-w-md">
-          <input name="name" placeholder="Your name" className="border rounded p-2" required />
-          <input type="email" name="email" placeholder="Your email" className="border rounded p-2" required />
-          <textarea name="message" placeholder="Your message" className="border rounded p-2 h-28" required />
-          <button className="px-4 py-2 rounded-lg border hover:bg-black hover:text-white">Send</button>
-        </form> */}
+        <form onSubmit={handleSubmit} className="mt-6 grid gap-3 max-w-md">
+          <input type="text" name="_gotcha" className="hidden" tabIndex={-1} autoComplete="off" />
+          <label className="text-sm" htmlFor="name">Name</label>
+          <input id="name" name="name" placeholder="Your name" className="border rounded p-2" autoComplete="name" required />
+          <label className="text-sm" htmlFor="email">Email</label>
+          <input id="email" type="email" name="email" placeholder="your@email.com" className="border rounded p-2" autoComplete="email" required />
+          <label className="text-sm" htmlFor="message">Message</label>
+          <textarea id="message" name="message" placeholder="Your message" className="border rounded p-2 h-28" required />
+          <button disabled={status === "sending"} className="px-4 py-2 rounded-lg border hover:bg-black hover:text-white disabled:opacity-60">
+            {status === "sending" ? "Sending..." : "Send"}
+          </button>
+          <p className="text-sm" aria-live="polite">
+            {status === "sent" && <span className="text-green-600">Thanks! Your message was sent successfully.</span>}
+            {status === "error" && <span className="text-red-600">Something went wrong. Please try again.</span>}
+          </p>
+        </form>
       </div>
-    </section>
+    </motion.section>
   );
 }
