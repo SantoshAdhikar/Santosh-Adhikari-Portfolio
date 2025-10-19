@@ -11,21 +11,21 @@ export default function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b dark:bg-neutral-900/80 dark:border-neutral-800">
+    <header className="sticky top-0 z-50 bg-white/10 backdrop-blur-md border-b border-white/10 text-white">
       <nav className="mx-auto max-w-6xl px-4 h-14 flex items-center justify-between">
-        <a href="#home" className="font-semibold dark:text-neutral-100">Santosh Adhikari</a>
+        <a href="#home" className="font-semibold">Santosh Adhikari</a>
 
         <ul className="hidden md:flex items-center gap-6 text-sm">
-          {links.map(l => (
+          {links.map((l) => (
             <li key={l.href}>
-              <a className="hover:underline dark:text-neutral-200" href={l.href}>{l.label}</a>
+              <a className="hover:underline" href={l.href}>{l.label}</a>
             </li>
           ))}
           <ThemeToggle />
         </ul>
 
         <button
-          className="md:hidden p-2 rounded-lg border dark:border-neutral-700"
+          className="md:hidden p-2 rounded-lg border border-white/20"
           onClick={() => setOpen(!open)}
           aria-expanded={open}
           aria-controls="mobile-nav"
@@ -36,10 +36,10 @@ export default function Navbar() {
       </nav>
 
       {open && (
-        <div id="mobile-nav" className="md:hidden border-t dark:border-neutral-800 bg-white dark:bg-neutral-900">
+        <div id="mobile-nav" className="md:hidden border-t border-white/10 bg-white/10 backdrop-blur-md">
           <div className="mx-auto max-w-6xl px-4 py-3 flex flex-col gap-3">
-            {links.map(l => (
-              <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="py-1 dark:text-neutral-200">
+            {links.map((l) => (
+              <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="py-1">
                 {l.label}
               </a>
             ))}

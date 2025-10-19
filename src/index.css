@@ -2,7 +2,136 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Base defaults: smooth scroll + white text everywhere */
 @layer base {
   html { scroll-behavior: smooth; }
-  body { @apply bg-white text-gray-900; }
+  body { color: #ffffff; }
+  a { color: #e0e7ff; }
+  a:hover { color: #ffffff; }
+}
+
+/* Utilities */
+@layer utilities {
+  /* RAINBOW NAME TEXT (used in Hero) */
+  .rainbow-text {
+    background: linear-gradient(
+      90deg,
+      #ff6b6b,
+      #ffd93d,
+      #6ee7b7,
+      #60a5fa,
+      #c084fc,
+      #ff6b6b
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+    animation: rainbow-slide 6s linear infinite;
+  }
+  @keyframes rainbow-slide { to { background-position: -200% 0; } }
+
+  /* GOLD ELECTRIC RING FOR AVATAR */
+  .electric-gold {
+    position: relative;
+    display: inline-block;
+    border-radius: 9999px;
+  }
+  .electric-gold::before {
+    content: "";
+    position: absolute;
+    inset: -12px;                 /* ring thickness */
+    border-radius: inherit;
+    background: conic-gradient(
+      from 0deg,
+      #ffd700,
+      #ffb703,
+      #ffe28a,
+      #ffd700
+    );
+    filter: blur(10px);
+    opacity: 0.9;
+    animation: spin-gold 8s linear infinite;
+    z-index: 0;
+  }
+  @keyframes spin-gold { to { transform: rotate(360deg); } }
+
+  /* INTRO — container that tilts */
+  .intro-name-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    line-height: 1;
+    transition: transform 0.15s ease-out;
+  }
+
+  /* INTRO — each rainbow letter with glow */
+  .intro-letter {
+    display: inline-block;
+    opacity: 0;
+    transform-style: preserve-3d;
+    transform-origin: bottom center;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    font-size: clamp(42px, 7vw, 96px);
+    background: linear-gradient(
+      135deg,
+      #ff0000,
+      #ff7f00,
+      #ffff00,
+      #00ff00,
+      #0000ff,
+      #4b0082,
+      #9400d3
+    );
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+    animation: rainbow-spin 4s linear infinite, name-glow 4s ease-in-out infinite;
+  }
+
+  .intro-space { width: 1.2rem; opacity: 1; }
+
+  .intro-reveal {
+    animation-name: letter-entrance, rainbow-spin, name-glow;
+    animation-duration: 0.5s, 4s, 4s;
+    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1), linear, ease-in-out;
+    animation-iteration-count: 1, infinite, infinite;
+    animation-fill-mode: forwards, none, none;
+  }
+
+  @keyframes letter-entrance {
+    0% { opacity: 0; transform: rotateX(-90deg) scale(0.5) translateY(-50px); }
+    100% { opacity: 1; transform: rotateX(0deg) scale(1) translateY(0); }
+  }
+
+  @keyframes rainbow-spin {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+
+  @keyframes name-glow {
+    0% { text-shadow: 0 0 5px #fff; }
+    50% { text-shadow: 0 0 25px #ff00ff, 0 0 40px #00ffff; }
+    100% { text-shadow: 0 0 5px #fff; }
+  }
+
+  /* INTRO — progress bar */
+  .intro-progress {
+    animation-name: intro-grow;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
+  @keyframes intro-grow {
+    from { width: 0%; }
+    to   { width: 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rainbow-text { animation: none; }
+    .electric-gold::before { animation: none; }
+    .intro-letter { animation: none; opacity: 1; }
+    .intro-reveal { animation: none; opacity: 1; }
+  }
 }
