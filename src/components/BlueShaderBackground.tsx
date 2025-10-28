@@ -2,157 +2,220 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-const NAVY     = 0x0a0f25;
-const ELECTRIC = 0x1e90ff;
-const GOLD     = 0xffcc66;
-
+/**
+ * Light mode  : Blue stucco shader with slow-moving visible dots
+ * Dark mode   : Starfield (unchanged)
+ */
 export default function BlueShaderBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const cleanupRef = useRef<() => void>(() => {});
 
   useEffect(() => {
-    const html = document.documentElement;
-
-    const rebuild = () => {
+    const observer = new MutationObserver(() => {
       cleanupRef.current?.();
-      mountScene();
-    };
+      mount();
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
 
-    const obs = new MutationObserver(rebuild);
-    obs.observe(html, { attributes: true, attributeFilter: ["class"] });
-
-    mountScene();
+    mount();
 
     return () => {
-      obs.disconnect();
+      observer.disconnect();
       cleanupRef.current?.();
       rendererRef.current?.dispose();
     };
   }, []);
 
-  function mountScene() {
+  function mount() {
     const isDark = document.documentElement.classList.contains("dark");
 
-    let canvas = canvasRef.current;
-    if (!canvas) {
-      canvas = document.createElement("canvas");
-      canvasRef.current = canvas;
-      Object.assign(canvas.style, {
-        position: "fixed",
-        inset: "0",
-        width: "100vw",
-        height: "100vh",
-        display: "block",
-        zIndex: "0",
-      });
-      document.body.appendChild(canvas);
-    }
+    if (!isDark) {
+      // ---------------- LIGHT MODE: Stucco + visible, slow dots ----------------
+      const SPEED = 0.4;        // background drift speed
+      const DOT_SPEED = 0.00001;  // << slow motion for dots
+      const ROUGHNESS = 0.10;   // bump fineness
+      const SPECK_SIZE = 2.8;   // visible dots
+      const SPECK_DENSITY = 0.90;
+      const C1 = new THREE.Color("#0d5eff").convertSRGBToLinear();
+      const C2 = new THREE.Color("#0d7edb").convertSRGBToLinear();
 
-    let renderer = rendererRef.current;
-    if (!renderer) {
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-      rendererRef.current = renderer;
-    }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.setSize(window.innerWidth, window.innerHeight);
+      let canvas = canvasRef.current;
+      if (!canvas) {
+        canvas = document.createElement("canvas");
+        canvasRef.current = canvas;
+        Object.assign(canvas.style, {
+          position: "fixed",
+          inset: "0",
+          width: "100vw",
+          height: "100vh",
+          display: "block",
+          zIndex: "0",
+        });
+        document.body.appendChild(canvas);
+      }
+      let renderer = rendererRef.current;
+      if (!renderer) {
+        renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        rendererRef.current = renderer;
+      }
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(window.innerWidth, window.innerHeight);
 
-    let tick: number;
-    let onResize: any;
-
-    if (isDark) {
-      // DARK MODE – cyber grid (now slower)
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(
-        55,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        2000
-      );
-      camera.position.set(0, 5, 16);
+      const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
-      renderer.setClearColor(NAVY, 1);
-      scene.fog = new THREE.FogExp2(NAVY, 0.06);
+      const fragmentShader = `
+        precision highp float;
+        uniform vec2  u_res;
+        uniform float u_time;
+        uniform float u_speed;
+        uniform float u_dotSpeed;
+        uniform float u_rough;
+        uniform float u_speckSize;
+        uniform float u_speckDensity;
+        uniform vec3  u_c1;
+        uniform vec3  u_c2;
 
-      const grid = new THREE.GridHelper(100, 80, ELECTRIC, ELECTRIC);
-      (grid.material as THREE.Material).transparent = true;
-      grid.position.y = -2.2;
-      grid.rotation.x = Math.PI / 8;
-      scene.add(grid);
+        float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453123); }
+        float noise(vec2 x){
+          vec2 i = floor(x), f = fract(x);
+          float a = hash(i);
+          float b = hash(i + vec2(1.0,0.0));
+          float c = hash(i + vec2(0.0,1.0));
+          float d = hash(i + vec2(1.0,1.0));
+          vec2 u = f*f*(3.0-2.0*f);
+          return mix(a,b,u.x) + (c-a)*u.y*(1.0-u.x) + (d-b)*u.x*u.y;
+        }
+        float fbm(vec2 p){
+          float v=0.0, a=0.5;
+          for(int i=0;i<5;i++){
+            v += a*noise(p);
+            p *= 2.0;
+            a *= 0.5;
+          }
+          return v;
+        }
 
-      const planes: THREE.LineSegments[] = [];
-      const planeMat = new THREE.LineBasicMaterial({
-        color: 0x0ab9ff,
-        transparent: true,
-        opacity: 0.18,
-      });
-      for (let i = 0; i < 3; i++) {
-        const g = new THREE.PlaneGeometry(40, 20, 40, 20);
-        const w = new THREE.WireframeGeometry(g);
-        const m = new THREE.LineSegments(w, planeMat.clone());
-        m.position.z = -8 - i * 6;
-        m.rotation.x = -Math.PI / 12;
-        scene.add(m);
-        planes.push(m);
-      }
+        void main(){
+          vec2 uv = gl_FragCoord.xy / u_res.xy;
+          uv.x *= u_res.x / u_res.y;
 
-      const group = new THREE.Group();
-      const geo = new THREE.BufferGeometry();
-      const N = 600;
-      const pos = new Float32Array(N * 3);
-      for (let i = 0; i < N; i++) {
-        pos[i * 3 + 0] = (Math.random() - 0.5) * 40;
-        pos[i * 3 + 1] = (Math.random() - 0.3) * 18;
-        pos[i * 3 + 2] = -Math.random() * 40;
-      }
-      geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-      const goldMat = new THREE.PointsMaterial({
-        size: 0.06,
-        color: GOLD,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-      });
-      const blueMat = new THREE.PointsMaterial({
-        size: 0.05,
-        color: ELECTRIC,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-      });
-      const goldPts = new THREE.Points(geo, goldMat);
-      const bluePts = new THREE.Points(geo.clone(), blueMat);
-      bluePts.position.z = -2;
-      group.add(goldPts, bluePts);
-      scene.add(group);
+          float t = u_time * u_speed;
+          vec2 base = uv * (2.5 + u_rough*0.25) + vec2(t, 0.0);
 
-      const beamsMat = new THREE.MeshBasicMaterial({
-        color: ELECTRIC,
-        transparent: true,
-        opacity: 0.06,
-      });
-      for (let i = 0; i < 4; i++) {
-        const beam = new THREE.Mesh(new THREE.PlaneGeometry(2, 20), beamsMat.clone());
-        beam.position.set(-4 + i * 2.5, 0, -10 - i * 3);
-        beam.rotation.y = (i - 1.5) * 0.15;
-        scene.add(beam);
-      }
+          float h = fbm(base);
+          vec2 e = vec2(1.0/u_res.y, 0.0);
+          float hx = h - fbm(base + e);
+          float hy = h - fbm(base + vec2(0.0, e.x));
+          vec3 n = normalize(vec3(hx, hy, 1.0/(0.15 + 0.025*u_rough)));
+          vec3 lightDir = normalize(vec3(-0.6, -0.8, 0.9));
+          float diff = clamp(dot(n, lightDir), 0.0, 1.0);
+
+          vec3 baseCol = mix(u_c1, u_c2, smoothstep(0.2, 0.8, h));
+          vec3 col = baseCol * (0.55 + 0.45*diff);
+
+          // slow drifting specks
+          vec2 gUV = gl_FragCoord.xy * (0.4 / u_speckSize);
+          vec2 motion = vec2(u_time * u_dotSpeed, u_time * u_dotSpeed * 0.8);
+          float r1 = hash(gUV + motion);
+          float r2 = hash(gUV + vec2(1.3, 2.1) + motion * 1.2);
+          float speck = max(step(u_speckDensity, r1), step(u_speckDensity, r2));
+          col += speck * 0.28;
+
+          gl_FragColor = vec4(col, 1.0);
+        }
+      `;
+      const vertexShader = `void main(){ gl_Position = vec4(position, 1.0); }`;
+
+      const uniforms = {
+        u_res:         { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+        u_time:        { value: 0 },
+        u_speed:       { value: SPEED },
+        u_dotSpeed:    { value: DOT_SPEED },   // <-- control dot motion speed
+        u_rough:       { value: ROUGHNESS },
+        u_speckSize:   { value: SPECK_SIZE },
+        u_speckDensity:{ value: SPECK_DENSITY },
+        u_c1:          { value: C1 },
+        u_c2:          { value: C2 },
+      };
+
+      const mat = new THREE.ShaderMaterial({ vertexShader, fragmentShader, uniforms });
+      const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat);
+      scene.add(quad);
 
       const clock = new THREE.Clock();
+      let raf = 0;
       const animate = () => {
-        const t = clock.getElapsedTime() * 0.25; // <-- slower speed (was 0.8)
-        (grid.material as THREE.Material).opacity = 0.20 + Math.sin(t * 1.0) * 0.03;
-        planes.forEach((p, i) => {
-          p.position.z = -8 - i * 6 + Math.sin(t * 0.4 + i) * 0.5;
-          (p.material as THREE.Material).opacity = 0.10 + 0.05 * Math.sin(t * 0.5 + i);
-        });
-        group.rotation.y = t * 0.08;
-        camera.position.y = 5 + Math.sin(t * 0.2) * 0.3;
-
+        uniforms.u_time.value = clock.getElapsedTime();
         renderer.render(scene, camera);
-        tick = requestAnimationFrame(animate);
+        raf = requestAnimationFrame(animate);
       };
       animate();
 
-      onResize = () => {
+      const onResize = () => {
+        uniforms.u_res.value.set(window.innerWidth, window.innerHeight);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      };
+      window.addEventListener("resize", onResize);
+
+      cleanupRef.current = () => {
+        cancelAnimationFrame(raf);
+        window.removeEventListener("resize", onResize);
+        quad.geometry.dispose();
+        mat.dispose();
+        renderer.clear();
+      };
+    } else {
+      // ---------------- DARK MODE: Starfield ----------------
+      const STAR_DRIFT_SPEED = 0.05;
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 2000);
+      camera.position.z = 300;
+      let renderer = rendererRef.current!;
+      renderer.setClearColor(0x070b1d, 1);
+
+      const N = 1500;
+      const pos = new Float32Array(N * 3);
+      const col = new Float32Array(N * 3);
+      const c = new THREE.Color();
+
+      for (let i = 0; i < N; i++) {
+        pos[i * 3 + 0] = (Math.random() - 0.5) * 1200;
+        pos[i * 3 + 1] = (Math.random() - 0.5) * 800;
+        pos[i * 3 + 2] = -Math.random() * 1400;
+        if (Math.random() < 0.07) c.set("#ffcc66");
+        else c.setHSL(0.60 + Math.random() * 0.05, 0.6, 0.55 + Math.random() * 0.15);
+        col[i * 3 + 0] = c.r;
+        col[i * 3 + 1] = c.g;
+        col[i * 3 + 2] = c.b;
+      }
+
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+      geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+      const mat = new THREE.PointsMaterial({
+        size: 2,
+        vertexColors: true,
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        sizeAttenuation: true,
+      });
+      const stars = new THREE.Points(geo, mat);
+      scene.add(stars);
+
+      const clock = new THREE.Clock();
+      let raf = 0;
+      const loop = () => {
+        const t = clock.getElapsedTime() * STAR_DRIFT_SPEED;
+        stars.rotation.y = t * 0.6;
+        stars.rotation.x = t * 0.25;
+        renderer.render(scene, camera);
+        raf = requestAnimationFrame(loop);
+      };
+      loop();
+
+      const onResize = () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -160,88 +223,9 @@ export default function BlueShaderBackground() {
       window.addEventListener("resize", onResize);
 
       cleanupRef.current = () => {
-        cancelAnimationFrame(tick);
+        cancelAnimationFrame(raf);
         window.removeEventListener("resize", onResize);
-        scene.traverse((obj) => {
-          if ((obj as any).geometry) (obj as any).geometry.dispose?.();
-          if ((obj as any).material) {
-            const m = (obj as any).material;
-            Array.isArray(m) ? m.forEach((mm: any) => mm.dispose?.()) : m.dispose?.();
-          }
-        });
-        renderer.clear();
-      };
-    } else {
-      // LIGHT MODE – very slow and smooth dots
-      const scene2 = new THREE.Scene();
-      const camera2 = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-
-      const GRAIN_SCALE     = 0.28;
-      const SPECK_THRESHOLD = 0.975;
-      const SPECK_INTENSITY = 0.18;
-
-      const fragmentShader = `
-        uniform float u_time;
-        uniform vec2  u_res;
-
-        float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
-        float noise(vec2 x){
-          vec2 i = floor(x), f = fract(x);
-          float a = hash(i), b = hash(i+vec2(1,0)), c = hash(i+vec2(0,1)), d = hash(i+vec2(1,1));
-          vec2 u = f*f*(3.0-2.0*f);
-          return mix(a,b,u.x) + (c-a)*u.y*(1.0-u.x) + (d-b)*u.x*u.y;
-        }
-
-        void main(){
-          vec2 st = gl_FragCoord.xy / u_res;
-          st.x *= u_res.x / u_res.y;
-
-          float n = noise(st*4.0 + u_time*0.9); // <-- super slow
-          vec3 dark  = vec3(0.05, 0.35, 1.0);
-          vec3 light = vec3(0.05, 0.54, 0.86);
-          vec3 col = mix(dark, light, smoothstep(0.2, 0.8, n));
-
-          vec2 gUV = gl_FragCoord.xy * ${GRAIN_SCALE.toFixed(2)};
-          float r1 = hash(gUV + u_time*0.000010);  // <-- slower
-          float r2 = hash(gUV + vec2(1.3, 2.1) + u_time*0.8);
-          float r3 = hash(gUV + vec2(-2.7, -0.9) + u_time*0.12);
-          float speck = max(max(step(${SPECK_THRESHOLD}, r1), step(${SPECK_THRESHOLD}, r2)), step(${SPECK_THRESHOLD}, r3));
-
-          col += speck * ${SPECK_INTENSITY};
-
-          gl_FragColor = vec4(col, 1.0);
-        }
-      `;
-      const vertexShader = `void main(){ gl_Position = vec4(position,1.0); }`;
-
-      const uniforms = {
-        u_time: { value: 0 },
-        u_res:  { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-      };
-
-      const mat  = new THREE.ShaderMaterial({ vertexShader, fragmentShader, uniforms });
-      const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat);
-      scene2.add(quad);
-
-      const clock = new THREE.Clock();
-      const animate = () => {
-        uniforms.u_time.value = clock.getElapsedTime();
-        uniforms.u_res.value.set(window.innerWidth, window.innerHeight);
-        renderer.render(scene2, camera2);
-        tick = requestAnimationFrame(animate);
-      };
-      animate();
-
-      onResize = () => {
-        uniforms.u_res.value.set(window.innerWidth, window.innerHeight);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      };
-      window.addEventListener("resize", onResize);
-
-      cleanupRef.current = () => {
-        cancelAnimationFrame(tick);
-        window.removeEventListener("resize", onResize);
-        quad.geometry.dispose();
+        geo.dispose();
         mat.dispose();
         renderer.clear();
       };
