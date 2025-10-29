@@ -15,8 +15,10 @@ export default function About() {
 
         <p className="mt-4 leading-relaxed text-white/90">
           I’m a developer focused on practical, reliable software. Recent work includes a
-          Student Management System (React + Spring Boot + SQL on GCP) and SafeChat —
-          a secure messaging backend with phishing detection and an image scan pipeline.
+          Student Management System (React + Spring Boot + SQL on GCP) and SafeChat
+          a secure messaging backend with phishing detection and an image scan pipeline. I am a passionate developer 
+          focused on building scalable solutions. I am currently pursuing a Bachlor's in Computer Science at California State University, Long Beach (CSULB) 
+          and am on track to graduate in December 2025. I am actively seeking full-time roles starting early next year.
         </p>
 
         <ul className="mt-4 list-disc list-inside text-white/90">

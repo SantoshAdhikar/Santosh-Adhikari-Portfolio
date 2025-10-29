@@ -6,8 +6,10 @@ export default function Navbar() {
   const links = [
     { href: "#home", label: "Home" },
     { href: "#about", label: "About" },
+    // { href: "#photos", label: "Photos" },   // ⬅ add this
     { href: "#projects", label: "Projects" },
     { href: "#contact", label: "Contact" },
+    { href: "#gallery", label: "Gallery" },
   ];
 
   return (
