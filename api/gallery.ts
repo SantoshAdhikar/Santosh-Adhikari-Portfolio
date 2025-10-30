@@ -43,6 +43,7 @@ export default async function handler(req: any, res: any) {
     res.status(r.status).json({ error: "Cloudinary API error", detail: txt });
     return;
   }
+  
 
   const data = await r.json();
   const items = (data.resources as CloudinaryResource[]).map(it => ({
