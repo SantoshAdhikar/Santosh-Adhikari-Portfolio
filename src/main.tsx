@@ -1,27 +1,25 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import App from "./App";
 import "./index.css";
 
-import App from "./App";
-import GalleryPage from "./pages/GalleryPage";
-
-function RouteError() {
-  return (
-    <div style={{ padding: 24, color: "white" }}>
-      <h1>Something went wrong</h1>
-      <p>Open DevTools → Console to see the error.</p>
-    </div>
-  );
-}
+const GalleryPage = lazy(() => import("./pages/GalleryPage"));
+// const BlueShaderBackground = lazy(() => import("./components/BlueShaderBackground"));
 
 const router = createBrowserRouter([
-  { path: "/", element: <App />, errorElement: <RouteError /> },
-  { path: "/gallery", element: <GalleryPage />, errorElement: <RouteError /> },
+  { path: "/", element: <App /> },
+  { path: "/gallery", element:
+      <Suspense fallback={<div className="p-6 text-white/80">Loading…</div>}>
+        <GalleryPage />
+      </Suspense>
+    }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <Suspense fallback={<div className="p-6 text-white/80">Loading…</div>}>
+      <RouterProvider router={router} />
+    </Suspense>
   </React.StrictMode>
 );

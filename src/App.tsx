@@ -10,6 +10,8 @@ import Contact from "./components/Contact";
 import GallerySection from "./components/GallerySection";  // <-- ADD
 import Footer from "./components/Footer";
 import "./index.css";
+import { Suspense, lazy } from "react";
+const BG = lazy(() => import("./components/BlueShaderBackground"));
 
 export default function App() {
   const [showIntro, setShowIntro] = useState(false);
@@ -30,7 +32,9 @@ export default function App() {
         durationMs={3000}
         name="SANTOSH ADHIKARI"
       />
-
+      <Suspense fallback={null}>
+  <BG />
+</Suspense>
       <div className="relative z-10 text-white">
         <Navbar />
         <main>
