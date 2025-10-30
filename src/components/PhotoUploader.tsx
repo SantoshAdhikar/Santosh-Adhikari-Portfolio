@@ -10,6 +10,11 @@ export default function PhotoUploader({ onUploaded }: Props) {
   const CLOUD  = import.meta.env.VITE_CLOUDINARY_CLOUD;
   const PRESET = import.meta.env.VITE_CLOUDINARY_PRESET;
 
+  if (!CLOUD || !PRESET) {
+  console.error("Missing Cloudinary client config (VITE_CLOUDINARY_*).");
+  // Show a friendly UI error if you want
+}
+
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
