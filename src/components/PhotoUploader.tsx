@@ -1,7 +1,12 @@
 // @ts-nocheck
 import { useState } from "react";
 
-export default function PhotoUploader() {
+type Props = {
+  /** Called after a successful upload so parent can refresh the gallery */
+  onUploaded?: () => void;
+};
+
+export default function PhotoUploader({ onUploaded }: Props) {
   const CLOUD  = import.meta.env.VITE_CLOUDINARY_CLOUD;
   const PRESET = import.meta.env.VITE_CLOUDINARY_PRESET;
 
@@ -23,21 +28,21 @@ export default function PhotoUploader() {
     try {
       const fd = new FormData();
       fd.append("file", f);
-      fd.append("upload_preset", PRESET); // unsigned preset
-
-      // Optional: put into a folder
-      // fd.append("folder", "community");
+      fd.append("upload_preset", PRESET);
+      // Optional: fd.append("folder", "community");
 
       const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`, {
         method: "POST",
         body: fd,
       });
-
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error?.message || JSON.stringify(data));
 
       setMsg("Upload received! It will display once approved.");
-      e.target.value = ""; // reset
+      e.target.value = ""; // reset input
+
+      // notify parent to re-fetch
+      onUploaded?.();
     } catch (err: any) {
       setMsg("Upload failed: " + (err.message || String(err)));
     } finally {
