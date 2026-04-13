@@ -6,19 +6,24 @@ import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import About from "./components/About";
 import Projects from "./components/Projects";
+import Skills from "./components/Skills";
+import Education from "./components/Education";
+import LookingFor from "./components/LookingFor";
 import Contact from "./components/Contact";
-import GallerySection from "./components/GallerySection";  // <-- ADD
 import Footer from "./components/Footer";
+import ProfileMode from "./components/ProfileMode";
 import "./index.css";
-import { Suspense, lazy } from "react";
-const BG = lazy(() => import("./components/BlueShaderBackground"));
+import JobBanner from "./components/JobBanner";
 
 export default function App() {
-  const [showIntro, setShowIntro] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
 
   useEffect(() => {
     if (!showIntro) {
-      document.getElementById("home")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById("home")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }
   }, [showIntro]);
 
@@ -32,17 +37,19 @@ export default function App() {
         durationMs={3000}
         name="SANTOSH ADHIKARI"
       />
-      <Suspense fallback={null}>
-  <BG />
-</Suspense>
+
       <div className="relative z-10 text-white">
         <Navbar />
         <main>
+          <JobBanner />
           <Hero />
+          <LookingFor />
+          <ProfileMode />
           <About />
           <Projects />
+          <Skills />
+          <Education />
           <Contact />
-          <GallerySection /> {/* <-- HERE: after Contact */}
         </main>
         <Footer />
       </div>

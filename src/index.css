@@ -10,6 +10,35 @@
   a:hover { color: #ffffff; }
 }
 
+.rainbow-text {
+  background: linear-gradient(
+    90deg,
+    #ff6b6b,
+    #feca57,
+    #48dbfb,
+    #1dd1a1,
+    #5f27cd,
+    #ff9ff3
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.rainbow-text {
+  background: linear-gradient(
+    90deg,
+    #ff6b6b,
+    #feca57,
+    #48dbfb,
+    #1dd1a1,
+    #5f27cd,
+    #ff9ff3
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* Utilities */
 @layer utilities {
   /* RAINBOW NAME TEXT (used in Hero) */
