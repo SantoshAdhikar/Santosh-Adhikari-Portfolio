@@ -38,7 +38,83 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+.animated-name {
+  background: linear-gradient(
+    90deg,
+    #ff6b6b,
+    #feca57,
+    #48dbfb,
+    #1dd1a1,
+    #5f27cd,
+    #ff9ff3,
+    #ff6b6b
+  );
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: nameColorFlow 3s linear infinite;
+}
 
+.animated-name {
+  background: linear-gradient(
+    90deg,
+    #ff6b6b,
+    #feca57,
+    #48dbfb,
+    #1dd1a1,
+    #5f27cd,
+    #ff9ff3,
+    #ff6b6b
+  );
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: nameColorFlow 10s linear infinite;
+}
+
+.animated-portfolio {
+  color: white;
+  animation: portfolioGlow 2.5s ease-in-out infinite;
+}
+
+
+
+@keyframes nameColorFlow {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 300% center;
+  }
+}
+
+@keyframes portfolioGlow {
+  0% {
+    text-shadow: 0 0 0px rgba(255, 255, 255, 0.08);
+    transform: scale(1);
+  }
+  50% {
+    text-shadow:
+      0 0 10px rgba(255, 255, 255, 0.4),
+      0 0 20px rgba(255, 255, 255, 0.22);
+    transform: scale(1.015);
+  }
+  100% {
+    text-shadow: 0 0 0px rgba(255, 255, 255, 0.08);
+    transform: scale(1);
+  }
+}
+
+@keyframes nameColorFlow {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 300% center;
+  }
+}
 /* Utilities */
 @layer utilities {
   /* RAINBOW NAME TEXT (used in Hero) */
@@ -56,7 +132,7 @@
     -webkit-background-clip: text;
             background-clip: text;
     color: transparent;
-    animation: rainbow-slide 6s linear infinite;
+    animation: rainbow-slide 8s linear infinite;
   }
   @keyframes rainbow-slide { to { background-position: -200% 0; } }
 
