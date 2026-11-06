@@ -14,7 +14,14 @@ type CloudinaryResource = {
   created_at: string;
 };
 
-export default async function handler(req: any, res: any) {
+type Response = {
+  status: (code: number) => Response;
+  json: (body: unknown) => void;
+  setHeader: (name: string, value: string) => void;
+  send: (body: string) => void;
+};
+
+export default async function handler(_req: unknown, res: Response) {
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
   const apiKey    = process.env.CLOUDINARY_API_KEY;
   const apiSecret = process.env.CLOUDINARY_API_SECRET;

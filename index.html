@@ -2,22 +2,22 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>santosh-portfolio</title>
+    <meta name="theme-color" content="#06162b" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Santosh Adhikari | Java Backend & Full-Stack Developer</title>
+    <meta name="description" content="Santosh Adhikari is a CSULB Computer Science graduate and backend-focused full-stack developer. Explore Java, Spring Boot, React, PostgreSQL, and S4 Neighborhood Intelligence projects." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Santosh Adhikari | Backend & Full-Stack Developer" />
+    <meta property="og:description" content="Projects and engineering work with Java, Spring Boot, React, and PostgreSQL." />
+    <script>
+      try {
+        document.documentElement.classList.toggle("dark", localStorage.getItem("theme") === "dark");
+      } catch (_) { /* Storage might be unavailable in private browsing. */ }
+    </script>
   </head>
   <body>
     <div id="root"></div>
-    <!-- <script type="module" src="/src/main.tsx"></script> -->
-     <script type="module" src="/src/main.tsx">
-  // Respect saved choice; default to light
-  const saved = localStorage.getItem("theme");
-  if (saved === "dark") {
-    document.documentElement.classList.add("dark");
-  } else {
-    document.documentElement.classList.remove("dark");
-  }
-</script>
-
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -1,220 +1,108 @@
-// @ts-nocheck
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-type Props = {
-  show: boolean;
-  onDone: () => void;
-  durationMs?: number;   // default 3000
-  name?: string;         // default "SANTOSH ADHIKARI"
-};
+type Props = { show: boolean; onDone: () => void; durationMs?: number; name?: string };
 
-export default function IntroSplash3D({
-  show,
-  onDone,
-  durationMs = 3000,
-  name = "SANTOSH ADHIKARI",
-}: Props) {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const nameRef = useRef<HTMLHeadingElement>(null);
-
-  // progress bar animation (CSS runs it, this is just width reset)
-  const [mountedAt] = useState<number>(Date.now());
+export default function IntroSplash3D({ show, onDone, durationMs = 2700, name = "SANTOSH ADHIKARI" }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     if (!show) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    // ====== Three.js setup (star field background) ======
-    const canvas = document.createElement("canvas");
-    canvasRef.current = canvas;
-    Object.assign(canvas.style, {
-      position: "fixed",
-      inset: "0",
-      display: "block",
-      zIndex: "0",
-    });
-    wrapRef.current?.appendChild(canvas);
+    let renderer: { dispose: () => void } | undefined;
+    let geometry: { dispose: () => void } | undefined;
+    let material: { dispose: () => void } | undefined;
+    let animationFrame = 0;
+    let cleanupGraphics = () => {};
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(
-      75,
-      window.innerWidth / window.innerHeight,
-      1,
-      1000
-    );
-    camera.position.z = 300;
-
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.setClearColor(0x000000, 1);
-
-    // Particles (colored starfield)
-    const particleCount = 1000;
-    const geometry = new THREE.BufferGeometry();
-    const vertices: number[] = [];
-    const colors: number[] = [];
-    const color = new THREE.Color();
-
-    for (let i = 0; i < particleCount; i++) {
-      const x = (Math.random() - 0.5) * 1000;
-      const y = (Math.random() - 0.5) * 1000;
-      const z = (Math.random() - 0.5) * 1000;
-      vertices.push(x, y, z);
-
-      // blueish hues
-      color.setHSL(0.6 + Math.random() * 0.1, 0.5, 0.5 + 0.2 * Math.random());
-      colors.push(color.r, color.g, color.b);
-    }
-    geometry.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
-    geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
-
-    const material = new THREE.PointsMaterial({
-      size: 2,
-      vertexColors: true,
-      blending: THREE.AdditiveBlending,
-      transparent: true,
-      sizeAttenuation: true,
-    });
-    const particles = new THREE.Points(geometry, material);
-    scene.add(particles);
-
-    // mouse parallax for background + 3D tilt on text
-    let halfX = window.innerWidth / 2;
-    let halfY = window.innerHeight / 2;
-    let bgMouseX = 0;
-    let bgMouseY = 0;
-
-    function onMouseMove(e: MouseEvent) {
-      bgMouseX = (e.clientX - halfX) * 0.5;
-      bgMouseY = (e.clientY - halfY) * 0.5;
-
-      // 3D tilt on the name
-      if (nameRef.current) {
-        const maxTilt = 5;
-        const sens = 0.05;
-        const rotateY = -(e.clientX - halfX) * (maxTilt / halfX);
-        const rotateX = (e.clientY - halfY) * (maxTilt / halfY);
-        const translateX = -(e.clientX - halfX) * sens;
-        const translateY = -(e.clientY - halfY) * sens;
-        nameRef.current.style.transform = `
-          translateX(${translateX}px)
-          translateY(${translateY}px)
-          rotateX(${rotateX}deg)
-          rotateY(${rotateY}deg)
-        `;
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.setAttribute("aria-hidden", "true");
+      Object.assign(canvas.style, { position: "absolute", inset: "0", width: "100%", height: "100%", pointerEvents: "none" });
+      container.appendChild(canvas);
+      const instance = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
+      renderer = instance;
+      instance.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      instance.setClearColor(0x000000, 0);
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+      camera.position.z = 300;
+      const particlesGeometry = new THREE.BufferGeometry();
+      geometry = particlesGeometry;
+      const positions = new Float32Array(550 * 3);
+      const colors = new Float32Array(550 * 3);
+      const c = new THREE.Color();
+      for (let i = 0; i < 550; i++) {
+        positions[i * 3] = (Math.random() - 0.5) * 900;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 900;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 900;
+        c.setHSL(0.58 + Math.random() * 0.13, 0.65, 0.55 + Math.random() * 0.25);
+        colors[i * 3] = c.r;
+        colors[i * 3 + 1] = c.g;
+        colors[i * 3 + 2] = c.b;
       }
+      particlesGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      particlesGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+      material = new THREE.PointsMaterial({ size: 2, vertexColors: true, transparent: true, blending: THREE.AdditiveBlending });
+      const points = new THREE.Points(geometry, material);
+      scene.add(points);
+      const currentRenderer = instance;
+      const resize = () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        currentRenderer.setSize(window.innerWidth, window.innerHeight);
+      };
+      resize();
+      const onMove = (event: MouseEvent) => {
+        if (!titleRef.current) return;
+        const x = (event.clientX / window.innerWidth - 0.5) * 8;
+        const y = (event.clientY / window.innerHeight - 0.5) * -8;
+        titleRef.current.style.transform = `rotateX(${y}deg) rotateY(${x}deg)`;
+      };
+      const animate = () => {
+        points.rotation.y += 0.00045;
+        points.rotation.x += 0.0002;
+        currentRenderer.render(scene, camera);
+        animationFrame = requestAnimationFrame(animate);
+      };
+      animate();
+      window.addEventListener("resize", resize);
+      window.addEventListener("mousemove", onMove);
+      cleanupGraphics = () => {
+        window.removeEventListener("resize", resize);
+        window.removeEventListener("mousemove", onMove);
+      };
+    } catch {
+      // CSS gradient and text remain available when WebGL is unsupported.
     }
 
-    function onResize() {
-      halfX = window.innerWidth / 2;
-      halfY = window.innerHeight / 2;
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("resize", onResize);
-
-    let running = true;
-    const tick = () => {
-      if (!running) return;
-      const t = Date.now() * 0.00005;
-      // slow drift
-      particles.rotation.y = t * 6; // feel stronger rotation
-      particles.rotation.x = t * 3;
-
-      // parallax camera
-      camera.position.x += (bgMouseX - camera.position.x) * 0.05;
-      camera.position.y += (-bgMouseY - camera.position.y) * 0.05;
-      camera.lookAt(scene.position);
-
-      renderer.render(scene, camera);
-      requestAnimationFrame(tick);
-    };
-    tick();
-
-    // ====== Rainbow stagger letter reveal ======
-    if (nameRef.current) {
-      nameRef.current.innerHTML = ""; // clear
-      const FULL_NAME = name;
-      let totalDelay = 0;
-      const DELAY = 60; // ms per letter
-
-      for (let i = 0; i < FULL_NAME.length; i++) {
-        const ch = FULL_NAME[i];
-        const span = document.createElement("span");
-        span.className = ch === " " ? "intro-space" : "intro-letter";
-        span.textContent = ch === " " ? "" : ch;
-        nameRef.current.appendChild(span);
-
-        if (ch !== " ") {
-          setTimeout(() => {
-            span.classList.add("intro-reveal");
-          }, totalDelay);
-          totalDelay += DELAY;
-        }
-      }
-
-      // Show subtitle slightly after
-      const tagline = document.getElementById("intro-tagline");
-      setTimeout(() => {
-        tagline?.classList.remove("opacity-0");
-      }, totalDelay + 300);
-    }
-
-    // auto-finish after durationMs
-    const timer = setTimeout(() => onDone(), durationMs);
-
-    // click to skip
-    const clickToSkip = () => onDone();
-    wrapRef.current?.addEventListener("click", clickToSkip);
-
+    const timer = window.setTimeout(onDone, durationMs);
     return () => {
-      running = false;
-      clearTimeout(timer);
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("resize", onResize);
-      wrapRef.current?.removeEventListener("click", clickToSkip);
-      renderer.dispose();
-      material.dispose();
-      geometry.dispose();
-      if (canvasRef.current && wrapRef.current) {
-        wrapRef.current.removeChild(canvasRef.current);
-      }
+      window.clearTimeout(timer);
+      cancelAnimationFrame(animationFrame);
+      cleanupGraphics();
+      geometry?.dispose();
+      material?.dispose();
+      renderer?.dispose();
+      const canvas = container.querySelector("canvas");
+      canvas?.remove();
     };
-  }, [show, durationMs, name, onDone]);
+  }, [show, onDone, durationMs]);
 
   if (!show) return null;
-
   return (
-    <div ref={wrapRef} className="fixed inset-0 z-[100] flex items-center justify-center">
-      {/* text overlay */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center z-[101]">
-        <h1
-          id="name-display"
-          ref={nameRef}
-          className="intro-name-container mb-4"
-          aria-label={name}
-        />
-        <p
-          id="intro-tagline"
-          className="text-yellow-400 text-lg sm:text-2xl font-bold tracking-widest mt-6 opacity-0 transition-opacity duration-700"
-        >
-          DEVELOPER | CREATOR | VISIONARY
-        </p>
-
-        {/* progress bar */}
-        <div className="mt-12 w-3/4 sm:w-1/3 h-1 bg-white/20 rounded-full overflow-hidden">
-          <div
-            key={mountedAt} /* restart CSS animation if re-mounted */
-            className="h-full bg-yellow-400 intro-progress"
-            style={{ animationDuration: `${Math.max(0, durationMs) / 1000}s` }}
-          />
-        </div>
+    <div ref={containerRef} role="status" aria-label="Portfolio introduction" className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#04091a] via-[#0a2041] to-[#030711]">
+      <div className="pointer-events-none relative z-10 flex w-full flex-col items-center px-4 text-center">
+        <h1 ref={titleRef} className="intro-name-container" aria-label={name}>
+          {Array.from(name).map((ch, i) => ch === " " ? <span key={i} className="intro-space" aria-hidden="true">&nbsp;</span> : <span key={i} className="intro-letter intro-reveal" aria-hidden="true" style={{ animationDelay: `${i * 55}ms,0ms,0ms` }}>{ch}</span>)}
+        </h1>
+        <p className="mt-6 text-base font-bold tracking-[0.2em] text-sky-200 sm:text-xl">BACKEND & FULL-STACK DEVELOPER</p>
+        <div className="mt-9 h-1 w-60 overflow-hidden rounded-full bg-white/20 sm:w-80"><div className="intro-progress h-full bg-sky-300" style={{ animationDuration: `${durationMs}ms` }} /></div>
       </div>
+      <button type="button" onClick={onDone} className="absolute bottom-7 right-6 z-20 rounded-lg border border-white/40 bg-black/30 px-4 py-2 text-sm font-medium text-white hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-300">Skip intro</button>
     </div>
   );
 }

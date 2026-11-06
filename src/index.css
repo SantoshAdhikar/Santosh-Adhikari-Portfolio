@@ -10,111 +10,20 @@
   a:hover { color: #ffffff; }
 }
 
-.rainbow-text {
-  background: linear-gradient(
-    90deg,
-    #ff6b6b,
-    #feca57,
-    #48dbfb,
-    #1dd1a1,
-    #5f27cd,
-    #ff9ff3
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.rainbow-text {
-  background: linear-gradient(
-    90deg,
-    #ff6b6b,
-    #feca57,
-    #48dbfb,
-    #1dd1a1,
-    #5f27cd,
-    #ff9ff3
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+/* Slow moving rainbow for the hero name. */
 .animated-name {
-  background: linear-gradient(
-    90deg,
-    #ff6b6b,
-    #feca57,
-    #48dbfb,
-    #1dd1a1,
-    #5f27cd,
-    #ff9ff3,
-    #ff6b6b
-  );
+  background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #1dd1a1, #5f27cd, #ff9ff3, #ff6b6b);
   background-size: 300% auto;
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: nameColorFlow 3s linear infinite;
+  animation: nameColorFlow 12s linear infinite;
 }
-
-.animated-name {
-  background: linear-gradient(
-    90deg,
-    #ff6b6b,
-    #feca57,
-    #48dbfb,
-    #1dd1a1,
-    #5f27cd,
-    #ff9ff3,
-    #ff6b6b
-  );
-  background-size: 300% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: nameColorFlow 10s linear infinite;
-}
-
-.animated-portfolio {
-  color: white;
-  animation: portfolioGlow 2.5s ease-in-out infinite;
-}
-
-
-
 @keyframes nameColorFlow {
-  0% {
-    background-position: 0% center;
-  }
-  100% {
-    background-position: 300% center;
-  }
+  from { background-position: 0% center; }
+  to { background-position: 300% center; }
 }
 
-@keyframes portfolioGlow {
-  0% {
-    text-shadow: 0 0 0px rgba(255, 255, 255, 0.08);
-    transform: scale(1);
-  }
-  50% {
-    text-shadow:
-      0 0 10px rgba(255, 255, 255, 0.4),
-      0 0 20px rgba(255, 255, 255, 0.22);
-    transform: scale(1.015);
-  }
-  100% {
-    text-shadow: 0 0 0px rgba(255, 255, 255, 0.08);
-    transform: scale(1);
-  }
-}
-
-@keyframes nameColorFlow {
-  0% {
-    background-position: 0% center;
-  }
-  100% {
-    background-position: 300% center;
-  }
-}
 /* Utilities */
 @layer utilities {
   /* RAINBOW NAME TEXT (used in Hero) */
@@ -239,4 +148,38 @@
     .intro-letter { animation: none; opacity: 1; }
     .intro-reveal { animation: none; opacity: 1; }
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .animated-name, .intro-progress, .intro-letter, .intro-reveal,
+  .rainbow-text, .electric-gold::before { animation: none !important; }
+  .intro-letter, .intro-reveal { opacity: 1 !important; }
+}
+:focus-visible { outline: 2px solid #7dd3fc; outline-offset: 3px; }
+
+
+/* A single calm backdrop keeps text readable across every section. */
+.portfolio-background {
+  background:
+    radial-gradient(ellipse 75% 52% at 13% 4%, rgba(31, 84, 134, 0.22), transparent 70%),
+    radial-gradient(ellipse 55% 36% at 92% 86%, rgba(12, 60, 109, 0.16), transparent 75%),
+    #06162b;
+}
+.portfolio-background::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(193, 220, 255, 0.66) 0.8px, transparent 1.4px),
+    radial-gradient(circle, rgba(165, 199, 238, 0.5) 0.7px, transparent 1.3px);
+  background-size: 124px 126px, 181px 197px;
+  background-position: 16px 24px, 72px 90px;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+.dark .portfolio-background::before { opacity: 0.24; }
+
+@media (prefers-reduced-motion: reduce) {
+  .portfolio-background::before { transition: none; }
 }

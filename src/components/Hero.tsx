@@ -1,108 +1,48 @@
-// @ts-nocheck
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowDown, Download, Code2, UserRound, MapPin } from "lucide-react";
 
 export default function Hero() {
-  function goToProjects() {
-    const el = document.getElementById("projects");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }
-
+  const reducedMotion = useReducedMotion();
   return (
     <motion.section
       id="home"
-      className="scroll-mt-24 min-h-[78vh] grid place-items-center px-4 py-10"
-      initial={{ opacity: 0, y: 20 }}
+      className="scroll-mt-24 px-4 pb-16 pt-14 sm:pt-20"
+      initial={reducedMotion ? false : { opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      transition={{ duration: 0.5 }}
     >
-      <div className="w-full max-w-5xl text-center">
-        <div className="flex justify-center">
-          <div className="relative h-56 w-56 rounded-full md:h-64 md:w-64">
-            <div
-              className="absolute inset-[-14px] rounded-full blur-xl opacity-90 animate-[spin_6s_linear_infinite]"
-              style={{
-                background:
-                  "conic-gradient(from 0deg, #ffd700, #ffb703, #ffe28a, #ffd700)",
-              }}
-            />
-
-            <img
-              src="/profile.jpg"
-              alt="Santosh Adhikari"
-              width={256}
-              height={256}
-              decoding="async"
-              className="relative z-10 h-full w-full rounded-full object-cover border-4 border-white/60 shadow-2xl"
-            />
-          </div>
-        </div>
-
-        <div className="mt-8">
-          <p className="animated-portfolio text-4xl font-extrabold leading-tight md:text-5xl">
-            Portfolio
+      <div className="mx-auto grid max-w-6xl items-center gap-9 lg:grid-cols-[1fr_230px] lg:gap-16">
+        <div>
+          <p className="inline-flex items-center gap-2 rounded-full border border-emerald-300/35 bg-emerald-300/10 px-4 py-2 text-sm font-medium text-emerald-200">
+            <span className="h-2 w-2 rounded-full bg-emerald-300" aria-hidden="true" />
+            Open to junior backend & full-stack roles
           </p>
-
-          <h1 className="mt-2 text-4xl font-extrabold leading-tight md:text-6xl">
+          <h1 className="mt-7 text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl">
             Hi, I’m <span className="animated-name">Santosh Adhikari</span>
           </h1>
-
-          <p className="mx-auto mt-4 max-w-3xl text-base text-white/90 md:text-xl">
-            CS student at CSULB. I build full-stack apps with React, Java Spring
-            Boot, and SQL. Passionate about secure messaging, education tech, and
-            clean UI.
+          <p className="mt-5 max-w-2xl text-2xl font-semibold text-sky-100 sm:text-3xl">
+            Backend-focused full-stack developer
           </p>
-
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <button
-              onClick={goToProjects}
-              className="rounded-lg border border-white/40 px-4 py-2 transition hover:bg-white hover:text-blue-700"
-            >
-              View Projects
-            </button>
-
-            <a
-              href="/Santosh Adhikari Resume.pdf"
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-lg border border-white/20 px-4 py-2 text-white transition hover:bg-white hover:text-black"
-            >
-              View Resume
-            </a>
-
-            <a
-              href="https://github.com/SantoshAdhikar"
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-lg border border-white/20 px-4 py-2 text-white transition hover:bg-white hover:text-black"
-            >
-              GitHub
-            </a>
-
-            <a
-              href="https://www.linkedin.com/in/santosh-adhikari-2043-sant"
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-lg border border-white/20 px-4 py-2 text-white transition hover:bg-white hover:text-black"
-            >
-              LinkedIn
-            </a>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg">
+            Computer Science graduate from California State University, Long Beach. I build Java/Spring Boot APIs, React/TypeScript applications, and PostgreSQL-backed systems. My recent work includes an AI-assisted local business intelligence application.
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-white/75">
+            <span className="inline-flex items-center gap-1.5"><MapPin size={15} /> Los Angeles County, CA</span>
+            <span className="rounded-full border border-white/25 px-3 py-1">B.S. Computer Science · Dec 2025</span>
           </div>
-
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <span className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80">
-              React
-            </span>
-            <span className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80">
-              Spring Boot
-            </span>
-            <span className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80">
-              SQL
-            </span>
-            <span className="rounded-full border border-white/20 px-4 py-2 text-sm text-white/80">
-              REST APIs
-            </span>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a href="#projects" className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-semibold text-slate-950 transition hover:bg-sky-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300"><ArrowDown size={18} /> Explore projects</a>
+            <a href="/Santosh Adhikari Resume.pdf" download="Santosh_Adhikari_Resume.pdf" className="inline-flex items-center gap-2 rounded-lg border border-white/35 bg-white/10 px-5 py-3 font-semibold text-white transition hover:bg-white/20"><Download size={18} /> Download resume</a>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-5 text-sm font-semibold">
+            <a href="https://github.com/SantoshAdhikar" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white/85 underline-offset-4 hover:text-white hover:underline"><Code2 size={18}/> GitHub</a>
+            <a href="https://www.linkedin.com/in/santosh-adhikari-2043-sant/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-white/85 underline-offset-4 hover:text-white hover:underline"><UserRound size={18}/> LinkedIn</a>
+            <a href="mailto:santoshskyadhikari@gmail.com" className="text-white/85 underline-offset-4 hover:text-white hover:underline">Email me</a>
+          </div>
+        </div>
+        <div className="order-first mx-auto lg:order-last">
+          <div className="electric-gold relative h-44 w-44 sm:h-52 sm:w-52 lg:h-56 lg:w-56">
+            <img src="/profile.webp" alt="Portrait of Santosh Adhikari" width={240} height={240} fetchPriority="high" className="relative z-10 h-full w-full rounded-full border-4 border-white/70 object-cover shadow-2xl" />
           </div>
         </div>
       </div>

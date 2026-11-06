@@ -1,31 +1,14 @@
-import { motion } from "framer-motion";
-
 export default function About() {
   return (
-    <motion.section
-      id="about"
-      className="scroll-mt-24 py-10 md:py-14"
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      viewport={{ once: true }}
-    >
-      <div className="mx-auto max-w-7xl px-6 md:px-10 text-white">
-        <h2 className="text-3xl font-bold">About</h2>
-
-        <p className="mt-5 max-w-5xl leading-relaxed text-white/90 text-base md:text-lg">
-          I’m a full-stack developer focused on building practical, reliable software.
-          My work includes web applications built with React, Java Spring Boot, SQL, and
-          cloud-based tools. I enjoy creating clean user experiences backed by strong
-          backend systems.
-        </p>
-
-        <p className="mt-5 max-w-5xl leading-relaxed text-white/90 text-base md:text-lg">
-          Recent projects include StudentNest, a student management system with authentication,
-          course workflows, and backend integration, along with business-focused web projects
-          designed for real users and real needs.
-        </p>
+    <section id="about" className="scroll-mt-24 py-16">
+      <div className="mx-auto max-w-6xl px-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">Beyond the tech stack</p>
+        <h2 className="mt-2 text-3xl font-bold text-white">About me</h2>
+        <div className="mt-6 grid gap-6 text-base leading-8 text-white/85 md:grid-cols-2">
+          <p>I’m a Computer Science graduate who enjoys turning messy requirements into useful applications. I’m particularly interested in Java backend development, API design, databases, and connecting services to interfaces people can actually use.</p>
+          <p>My projects span a five-person university capstone, software for a real local business, and an independent AI-assisted neighborhood intelligence prototype. I like debugging across the frontend, backend, and database rather than stopping at the first layer.</p>
+        </div>
       </div>
-    </motion.section>
+    </section>
   );
 }

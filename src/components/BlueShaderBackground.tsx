@@ -1,5 +1,4 @@
 // src/components/BlueShaderBackground.tsx
-// @ts-nocheck
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
@@ -9,7 +8,7 @@ import * as THREE from "three";
  */
 export default function BlueShaderBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const rendererRef = useRef<InstanceType<typeof THREE.WebGLRenderer> | null>(null);
   const cleanupRef = useRef<() => void>(() => {});
 
   useEffect(() => {
@@ -62,7 +61,7 @@ export default function BlueShaderBackground() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
 
-    let onResize: any;
+    let onResize: () => void = () => {};
     let raf = 0;
 
     if (!isDark) {
@@ -159,10 +158,13 @@ export default function BlueShaderBackground() {
       scene.add(quad);
 
       const clock = new THREE.Clock();
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const loop = () => {
-        uniforms.u_time.value = clock.getElapsedTime();
-        renderer.render(scene, camera);
-        raf = requestAnimationFrame(loop);
+        if (!document.hidden) {
+          uniforms.u_time.value = clock.getElapsedTime();
+          renderer.render(scene, camera);
+        }
+        if (!reduceMotion) raf = requestAnimationFrame(loop);
       };
       loop();
 
@@ -224,12 +226,15 @@ export default function BlueShaderBackground() {
       scene.add(stars);
 
       const clock = new THREE.Clock();
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const loop = () => {
-        const t = clock.getElapsedTime() * STAR_DRIFT_SPEED;
-        stars.rotation.y = t * 0.6;  // one gentle motion
-        stars.rotation.x = t * 0.25;
-        renderer.render(scene, camera);
-        raf = requestAnimationFrame(loop);
+        if (!document.hidden) {
+          const t = clock.getElapsedTime() * STAR_DRIFT_SPEED;
+          stars.rotation.y = t * 0.6;
+          stars.rotation.x = t * 0.25;
+          renderer.render(scene, camera);
+        }
+        if (!reduceMotion) raf = requestAnimationFrame(loop);
       };
       loop();
 

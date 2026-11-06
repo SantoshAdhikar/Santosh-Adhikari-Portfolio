@@ -1,5 +1,7 @@
 // api/env-check.ts
-export default function handler(req: any, res: any) {
+type Response = { status: (code: number) => { json: (body: unknown) => void } };
+
+export default function handler(_req: unknown, res: Response) {
   res.status(200).json({
     CLOUDINARY_CLOUD_NAME: !!process.env.CLOUDINARY_CLOUD_NAME,
     CLOUDINARY_API_KEY: !!process.env.CLOUDINARY_API_KEY,

@@ -17,8 +17,8 @@ export default function Photos({ refreshKey = 0 }: { refreshKey?: number }) {
         const data = JSON.parse(txt || "{}");
         const arr = Array.isArray(data?.items) ? data.items : [];
         if (!cancelled) setItems(arr);
-      } catch (e: any) {
-        if (!cancelled) setErr(e?.message || "Failed to load gallery.");
+      } catch (error: unknown) {
+        if (!cancelled) setErr(error instanceof Error ? error.message : "Failed to load gallery.");
       } finally {
         if (!cancelled) setLoading(false);
       }
